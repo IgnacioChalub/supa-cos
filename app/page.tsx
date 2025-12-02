@@ -50,6 +50,10 @@ import {
 import { Loader } from '@/components/ai-elements/loader';
 const models = [
   {
+    name: 'GPT 5 Nano',
+    value: 'openai/gpt-5-nano',
+  },
+  {
     name: 'GPT 4o',
     value: 'openai/gpt-4o',
   },
