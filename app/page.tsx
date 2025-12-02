@@ -73,7 +73,6 @@ const models = [
 const ChatBotDemo = () => {
   const [input, setInput] = useState('');
   const [model, setModel] = useState<string>(models[0].value);
-  const [webSearch, setWebSearch] = useState(false);
   const { messages, sendMessage, status, regenerate } = useChat();
   const handleSubmit = (message: PromptInputMessage) => {
     const hasText = Boolean(message.text);
@@ -89,7 +88,6 @@ const ChatBotDemo = () => {
       {
         body: {
           model: model,
-          webSearch: webSearch,
         },
       },
     );
@@ -130,7 +128,7 @@ const ChatBotDemo = () => {
                         : part.type.replace(/^tool-/, '');
 
                     return (
-                      <Tool key={`${message.id}-${i}`} defaultOpen>
+                      <Tool key={`${message.id}-${i}`}>
                         <ToolHeader
                           title={toolName}
                           type={part.type as any}
@@ -219,13 +217,6 @@ const ChatBotDemo = () => {
                   <PromptInputActionAddAttachments />
                 </PromptInputActionMenuContent>
               </PromptInputActionMenu>
-              <PromptInputButton
-                variant={webSearch ? 'default' : 'ghost'}
-                onClick={() => setWebSearch(!webSearch)}
-              >
-                <GlobeIcon size={16} />
-                <span>Search</span>
-              </PromptInputButton>
               <PromptInputSelect
                 onValueChange={(value) => {
                   setModel(value);

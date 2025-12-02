@@ -12,11 +12,9 @@ export async function POST(req: Request) {
   const {
     messages,
     model,
-    webSearch,
   }: { 
     messages: UIMessage[]; 
     model: string; 
-    webSearch: boolean;
   } = await req.json();
 
   const supabaseSchemaTool = createTool({
@@ -50,17 +48,16 @@ export async function POST(req: Request) {
     },
   });
 
-  const tools = webSearch
-    ? undefined
-    : {
-        supabaseSchema: supabaseSchemaTool,
-        supabaseSql: supabaseSqlTool,
-      };
+  const tools = {
+    supabaseSchema: supabaseSchemaTool,
+    supabaseSql: supabaseSqlTool,
+  };
 
   const result = streamText({
-    model: webSearch ? 'perplexity/sonar' : model,
+    model: model,
     messages: convertToModelMessages(messages),
     tools,
+    stopWhen: [], // Allow multiple tool round-trips instead of stopping after the first tool result.
     system: [
       'You are a helpful assistant that can answer questions and help with tasks.',
       'When users need information about the Supabase database, call supabaseSchema to inspect tables/columns and supabaseSql to execute read-only SQL queries instead of guessing.',
