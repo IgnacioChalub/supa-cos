@@ -48,6 +48,14 @@ import {
   ReasoningTrigger,
 } from '@/components/ai-elements/reasoning';
 import { Loader } from '@/components/ai-elements/loader';
+import {
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolInput,
+  ToolOutput,
+} from '@/components/ai-elements/tool';
+import { isToolOrDynamicToolUIPart } from 'ai';
 const models = [
   {
     name: 'GPT 5 Nano',
@@ -115,6 +123,32 @@ const ChatBotDemo = () => {
                   </Sources>
                 )}
                 {message.parts.map((part, i) => {
+                  if (isToolOrDynamicToolUIPart(part)) {
+                    const toolName =
+                      part.type === 'dynamic-tool'
+                        ? part.toolName
+                        : part.type.replace(/^tool-/, '');
+
+                    return (
+                      <Tool key={`${message.id}-${i}`} defaultOpen>
+                        <ToolHeader
+                          title={toolName}
+                          type={part.type as any}
+                          state={part.state}
+                        />
+                        <ToolContent>
+                          {part.input !== undefined && (
+                            <ToolInput input={part.input as any} />
+                          )}
+                          <ToolOutput
+                            output={part.output as any}
+                            errorText={part.errorText}
+                          />
+                        </ToolContent>
+                      </Tool>
+                    );
+                  }
+
                   switch (part.type) {
                     case 'text':
                       return (
