@@ -368,7 +368,6 @@ const callSupabaseTool = async (
 ) => {
   const tool = await resolveTool(client, toolName);
   const args = buildArgumentsForTool(tool, context, explicitArgs);
-  console.log("ARGS", args);
   const result = await client.callTool({
     name: tool.name,
     arguments: args,
@@ -506,7 +505,6 @@ const fetchSchemaSnapshot = async (
   const introspectionContext: ToolArgumentContext = {
     prompt: schemaSql,
   };
-  console.log("INTROSPECTION SQL", schemaSql);
   const result = await callSupabaseTool(client, "execute_sql", introspectionContext);
   const { rawRows } = unwrapToolResult(result);
   const normalizedRows = normalizeRowsPayload(rawRows);
