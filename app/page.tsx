@@ -55,6 +55,7 @@ import {
   ToolInput,
   ToolOutput,
 } from '@/components/ai-elements/tool';
+import { SupabaseSqlResult } from '@/components/ai-elements/supabase-sql-result';
 import { isToolOrDynamicToolUIPart } from 'ai';
 const models = [
   {
@@ -64,13 +65,9 @@ const models = [
   {
     name: 'GPT 4o',
     value: 'openai/gpt-4o',
-  },
-  {
-    name: 'Deepseek R1',
-    value: 'deepseek/deepseek-r1',
-  },
+  }
 ];
-const ChatBotDemo = () => {
+const ChatBot = () => {
   const [input, setInput] = useState('');
   const [model, setModel] = useState<string>(models[0].value);
   const { messages, sendMessage, status, regenerate } = useChat();
@@ -126,6 +123,59 @@ const ChatBotDemo = () => {
                       part.type === 'dynamic-tool'
                         ? part.toolName
                         : part.type.replace(/^tool-/, '');
+
+                    if (toolName === 'supabaseSql') {
+                      const supabaseOutput =
+                        part.output &&
+                        typeof part.output === 'object' &&
+                        !Array.isArray(part.output)
+                          ? (part.output as { sql?: unknown; rows?: unknown })
+                          : undefined;
+
+                      if (
+                        part.state === 'output-available' &&
+                        supabaseOutput &&
+                        !part.errorText
+                      ) {
+                        const sql =
+                          typeof supabaseOutput.sql === 'string'
+                            ? supabaseOutput.sql
+                            : undefined;
+                        const rows = supabaseOutput.rows;
+
+                        return (
+                          <Message
+                            key={`${message.id}-${i}`}
+                            className="w-full max-w-full"
+                            from={message.role}
+                          >
+                            <MessageContent className="w-full max-w-full">
+                              <SupabaseSqlResult sql={sql} rows={rows} />
+                            </MessageContent>
+                          </Message>
+                        );
+                      }
+
+                      const statusMessage =
+                        part.state === 'output-error' || part.errorText
+                          ? part.errorText ??
+                            'No se pudo ejecutar la consulta de Supabase.'
+                          : 'Consultando datos desde Supabase...';
+
+                      return (
+                        <Message
+                          key={`${message.id}-${i}`}
+                          className="max-w-full"
+                          from={message.role}
+                        >
+                          <MessageContent>
+                            <MessageResponse>
+                              {statusMessage}
+                            </MessageResponse>
+                          </MessageContent>
+                        </Message>
+                      );
+                    }
 
                     return (
                       <Tool key={`${message.id}-${i}`}>
@@ -243,4 +293,4 @@ const ChatBotDemo = () => {
   );
 };
 
-export default ChatBotDemo;
+export default ChatBot;
